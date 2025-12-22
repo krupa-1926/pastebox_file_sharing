@@ -53,10 +53,6 @@ const GuestDownload = () => {
   document.body.removeChild(link);
 };
 
-
-
-
-
   const verifyFile = async () => {
     if (!password) {
       toast.warn("Please enter a password.");

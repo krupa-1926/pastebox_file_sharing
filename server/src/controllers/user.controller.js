@@ -1,4 +1,4 @@
-import { User } from "../models/user.models.js";
+import { User } from "../models/usermodels.js";
 import bcrypt from "bcryptjs";
 import express, { Router } from "express";
 
@@ -11,7 +11,9 @@ const generateUniqueId = () => {
 
 // Function to create a new user
 const registerUser = async (req, res) => {
-  const { fullname, email, password } = req.body;
+  const { fullname, email, password  } = req.body;
+  console.log(req.body);
+  
 
   try {
     const existedUser = await User.findOne({ email });
@@ -20,7 +22,7 @@ const registerUser = async (req, res) => {
     }
 
     if (!fullname || !email || !password) {
-      return res.status(400).json({ message: "All are required." });
+      return res.status(400).json({ message: "All Fields are required." });
     }
 
     if (password.length < 6) {
@@ -29,7 +31,7 @@ const registerUser = async (req, res) => {
         .json({ message: "Password must be at least 6 characters long." });
     }
 
-    if (fullname.length < 6) {
+    if (fullname.length < 3) {
       return res
         .status(400)
         .json({ message: "Fullname must be at least 6 characters long." });
@@ -52,7 +54,7 @@ const username = `${cleanedFullname.substring(0, 4).toLowerCase()}${generateUniq
 
     const newUser = new User({
       fullname,
-      username,
+      username : username,
       email,
         password,
       profilePic

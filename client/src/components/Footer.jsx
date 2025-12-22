@@ -4,7 +4,7 @@ function Footer() {
   return (
     <footer className="w-full border-t border-gray-300 shadow-inner bg-[var(--bg-color)] text-[var(--text-color)] py-6 px-4 flex flex-col md:flex-row items-center justify-between">
       <p className="text-center text-sm font-medium">
-        Crafted with ❤️ by <span className="font-semibold">Prince Kumar</span>
+        Crafted with ❤️ by <span className="font-semibold">KRUPA PATEL</span>
       </p>
 
       <div className="flex items-center gap-4 mt-4 md:mt-0">

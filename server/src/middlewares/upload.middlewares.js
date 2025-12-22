@@ -1,24 +1,14 @@
-import multer from 'multer';
-import path from 'path';
 
-const storage = multer.memoryStorage();
+import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../db/Cloudinary.js";
 
-const allowedExtensions = [
-  '.jpg', '.jpeg', '.webp', '.png',
-  '.mp4', '.avi', '.mov', '.mkv', '.mk3d', '.mks', '.mka',
-  '.pdf'
-];
-
-const upload = multer({
-  storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB
-  fileFilter: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (!allowedExtensions.includes(ext)) {
-      return cb(new Error(`❌ Unsupported file type: ${ext}`));
-    }
-    cb(null, true);
-  }
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "pastebox",
+    resource_type: "auto", // accepts images, pdf, zip, etc
+  },
 });
 
-export default upload;
+export const upload = multer({ storage });

@@ -1,17 +1,12 @@
 import { File } from '../models/file.models.js';
 import { GuestFile } from '../models/guestFile.models.js';
-import s3 from "../config/s3.js";
 import bcrypt from "bcryptjs";
-import AWS from "aws-sdk";
 import nodemailer from "nodemailer";
 import shortid from "shortid";
 import QRCode from "qrcode";
-import { User } from '../models/user.models.js';
+import { User } from '../models/usermodels.js';
 import path from "path";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
-
+import cloudinary from '../db/Cloudinary.js';
 
 const uploadFiles = async (req, res) => {
   if (!req.files || req.files.length === 0) {
@@ -21,36 +16,26 @@ const uploadFiles = async (req, res) => {
   const { isPassword, password, hasExpiry, expiresAt, userId } = req.body;
 
   try {
-    const s3 = new AWS.S3({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: process.env.AWS_REGION,
-    });
-
-    const savedFiles = [];
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ error: 'User not found' });
+    const savedFiles = [];
 
     for (const file of req.files) {
-      const originalName = file.originalname;
-      const extension = path.extname(originalName);
-      const uniqueSuffix = shortid.generate();
-      const finalFileName = `${originalName.replace(/\s+/g, '_')}_${uniqueSuffix}${extension}`;
-
-      const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: `file-share-app/${finalFileName}`,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      };
-
-      const s3Result = await s3.upload(params).promise();
-      const fileUrl = s3Result.Location;
       const shortCode = shortid.generate();
+      const originalName = file.originalname;
+//       const extension = path.extname(originalName);
+//       const uniqueSuffix = shortid.generate();
+//       const finalFileName = `${originalName.replace(/\s+/g, '_')}_${uniqueSuffix}${extension}`;
+
+      // req.files already uploaded
+const fileUrl = file.path;       // Cloudinary URL
+const publicId = file.filename;  // Cloudinary public_id
+
 
       const fileObj = {
         path: fileUrl,
-        name: finalFileName,
+        cloudinaryId: publicId,
+        name: originalName,
         type: file.mimetype,
         size: file.size,
         hasExpiry: hasExpiry === 'true',
@@ -74,9 +59,9 @@ const uploadFiles = async (req, res) => {
 
       // Update user stats
       user.totalUploads += 1;
-      if (file.mimetype.startsWith('image/')) user.imageCount += 1;
-      else if (file.mimetype.startsWith('video/')) user.videoCount += 1;
-      else if (file.mimetype.startsWith('application/')) user.documentCount += 1;
+      // if (file.mimetype.startsWith('image/')) user.imageCount += 1;
+      // else if (file.mimetype.startsWith('video/')) user.videoCount += 1;
+      // else if (file.mimetype.startsWith('application/')) user.documentCount += 1;
     }
 
     await user.save();
@@ -99,37 +84,15 @@ const uploadFilesGuest = async (req, res) => {
       const {isPassword,password,hasExpiry,expiresAt} = req.body;
 
       try {
-           const s3 = new AWS.S3({
-             accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-             region: process.env.AWS_REGION
-           });
-
             const savedFiles = [];
-
-
             for(const file of req.files){
-              const originalName = file.originalname;
-              const extension = path.extname(originalName);
-              const uniqueSuffix = shortid.generate();
-              const finalFileName = `${originalName.replace(/\s+/g, '_')}_${uniqueSuffix}${extension}`;
-
-              const params = {
-                Bucket: process.env.AWS_BUCKET_NAME,
-                Key: `file-share-app/${finalFileName}`,
-                Body: file.buffer,
-                ContentType: file.mimetype,
-              };
-
-              const s3Result = await s3.upload(params).promise();
-              const fileUrl = s3Result.Location;
               const shortCode = shortid.generate();
-
               const username = shortid.generate();
 
               const fileObj = {
-                path: fileUrl,
-                name: finalFileName,
+                path: file.path,
+                cloudinaryId: file.filename,
+                name: file.originalname,
                 type: file.mimetype,
                 size: file.size,
                 hasExpiry: hasExpiry === 'true',
@@ -194,23 +157,6 @@ const downloadInfo = async (req, res) => {
       return res.status(410).json({ error: 'This file has expired' });
     }
 
-    const s3 = new S3Client({
-      region: process.env.AWS_REGION,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-      }
-    });
-
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `file-share-app/${file.name}`,
-      ResponseContentDisposition: `attachment; filename="${file.name}"` // 🟢 Force download
-    };
-
-    const command = new GetObjectCommand(params);
-    const downloadUrl = await getSignedUrl(s3, command, { expiresIn: 24 * 60 * 60 }); // 24 hours
-
     file.downloadedContent++;
     await file.save();
 
@@ -259,22 +205,6 @@ const guestDownloadInfo = async (req, res) => {
     if (file.expiresAt && new Date(file.expiresAt) < new Date()) {
       return res.status(410).json({ error: 'This file has expired' });
     }
-    const s3 = new S3Client({
-      region: process.env.AWS_REGION,
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-      }
-    });
-
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `file-share-app/${file.name}`,
-      ResponseContentDisposition: `attachment; filename="${file.name}"`
-    };
-
-    const command = new GetObjectCommand(params);
-    const downloadUrl = await getSignedUrl(s3, command, { expiresIn: 24 * 60 * 60 });
 
     file.downloadedContent++;
     await file.save();
@@ -303,8 +233,6 @@ const guestDownloadInfo = async (req, res) => {
   }
 };
 
-
-
 const downloadFile = async (req, res) => {
     const { fileId } = req.params;
     const { password } = req.body;
@@ -319,6 +247,8 @@ const downloadFile = async (req, res) => {
         }
 
         if (file.expiresAt && new Date(file.expiresAt) < new Date()) {
+           file.status = 'expired';
+      await file.save();
       return res.status(410).json({ error: 'This file has expired' });
     }
 
@@ -333,20 +263,7 @@ const downloadFile = async (req, res) => {
       }
     }
 
-    const s3 = new AWS.S3({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      region: process.env.AWS_REGION
-    });
-
-    const key = `file-share-app/${file.name}`;
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: key,
-      Expires: 24 * 60 * 60,
-    };
-
-    const downloadUrl = s3.getSignedUrl('getObject', params);
+    const downloadUrl =file.path;
     if (!downloadUrl) {
         return res.status(500).json({ error: 'Error generating download URL' });
     }
@@ -370,7 +287,6 @@ const downloadFile = async (req, res) => {
     }
 }
 
-
 const deleteFile = async (req, res) => {
      const { fileId } = req.params;
 
@@ -384,19 +300,9 @@ const deleteFile = async (req, res) => {
         if(file.status==='deleted'){
           return res.status(400).json({error:'File already deleted'});
         }
-
-        const s3 =new AWS.S3({
-          accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-          region: process.env.AWS_REGION
-        })
-
-        const params={
-          Bucket: process.env.AWS_BUCKET_NAME,
-          Key: `file-share-app/${file.name}`
-        }
-
-        await s3.deleteObject(params).promise();
+ if (file.cloudinaryId) {
+      await cloudinary.uploader.destroy(file.cloudinaryId, { resource_type: "auto" });
+    }
         
          await File.deleteOne({ _id: fileId });
 
