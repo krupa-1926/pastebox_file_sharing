@@ -10,7 +10,7 @@ function Footer() {
       <div className="flex items-center gap-4 mt-4 md:mt-0">
         {/* LinkedIn */}
         <a
-          href="https://www.linkedin.com/in/prince-kumar-788673253/"
+          href="https://www.linkedin.com/in/krupa1912/"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:scale-110 transition-transform"
@@ -24,7 +24,7 @@ function Footer() {
 
         {/* GitHub */}
         <a
-          href="https://github.com/princeInScripts"
+          href="https://github.com/krupa-1926"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:scale-110 transition-transform"
@@ -38,7 +38,7 @@ function Footer() {
 
         {/* Instagram */}
         <a
-          href="https://instagram.com/scriptxprince"
+          href="https://instagram.com/krp_19_"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:scale-110 transition-transform"
@@ -52,7 +52,7 @@ function Footer() {
 
         {/* Email */}
         <a
-          href="mailto:pk8917912@example.com"
+          href="mailto:krupapatel1926@gmail.com"
           className="hover:scale-110 transition-transform"
         >
           <img

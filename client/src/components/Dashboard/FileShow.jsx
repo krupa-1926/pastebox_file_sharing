@@ -173,7 +173,7 @@ const paginatedFiles = filteredFiles?.slice(
                     "File Name",
                     "Size",
                     "Type",
-                    "Download",
+                    // "Download",
                     "Status",
                     "Actions",
                     "Expiry At",
@@ -277,9 +277,9 @@ const paginatedFiles = filteredFiles?.slice(
           <td className="px-6 py-4 text-sm">{sortFileName(file.name)}</td>
           <td className="px-6 py-4 text-sm text-gray-400">{formattedSize}</td>
           <td className="px-6 py-4 text-sm text-gray-400">{file.type}</td>
-          <td className="px-6 py-4 text-sm text-gray-400">
+          {/* <td className="px-6 py-4 text-sm text-gray-400">
             {file.downloadedContent}
-          </td>
+          </td> */}
           <td className="px-6 py-4 text-sm">
             <span
               className={`font-medium ${
