@@ -1,6 +1,6 @@
 import React from "react";
 
-const Sidebar = ({ sidebarOpen, setSidebarOpen, setActiveTab, activeTab }) => {
+const   Sidebar = ({ sidebarOpen, setSidebarOpen, setActiveTab, activeTab }) => {
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     setSidebarOpen(false); // Close on mobile

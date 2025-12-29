@@ -14,7 +14,7 @@ const FileDownload = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const res = await axiosInstance.get(`files/resolveShareLink/${code}`);
+        const res = await axiosInstance.get(`/files/resolveShareLink/${code}`);
         setFileData(res.data);
         if (res.data.isPasswordProtected) {
           setShowPasswordPrompt(true);
@@ -28,7 +28,7 @@ const FileDownload = () => {
 
   const handlePasswordSubmit = async () => {
     try {
-      await axiosInstance.post(`files/verifyFilePassword`, {
+      await axiosInstance.post(`/files/verifyFilePassword`, {
         fileId: fileData.fileId,
         password,
       });
@@ -40,7 +40,7 @@ const FileDownload = () => {
 
   const handleDownload = async () => {
     try {
-      const res = await axiosInstance.post(`files/download/${fileData.fileId}`, {
+      const res = await axiosInstance.post(`/files/download/${fileData.fileId}`, {
         password,
       });
       window.open(res.data.downloadUrl, '_blank');

@@ -1,7 +1,7 @@
 import { User } from "../models/usermodels.js";
 import bcrypt from "bcryptjs";
 import express, { Router } from "express";
-
+import {File} from '../models/file.models.js'
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 
@@ -88,18 +88,62 @@ const getUsers = async (req, res) => {
   }
 };
 
+// const getUserById = async (req, res) => {
+//   const { userId } = req.params;
+//   try {
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+//     res.status(200).json(user);
+//   } catch (error) {
+//     res.status(500).json({ message: "Error fetching user" });
+//   }
+// };
 const getUserById = async (req, res) => {
   const { userId } = req.params;
+
   try {
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    res.status(200).json(user);
+
+    const files = await File.find({ owner: user._id });
+
+    const totalUploads = files.length;
+    const totalDownloads = files.reduce(
+      (sum, file) => sum + (file.downloads || 0),
+      0
+    );
+
+    const videoCount = files.filter(f =>
+      f.mimetype?.startsWith("video")
+    ).length;
+
+    const imageCount = files.filter(f =>
+      f.mimetype?.startsWith("image")
+    ).length;
+
+    const documentCount = files.filter(f =>
+      f.mimetype === "application/pdf"
+    ).length;
+
+    res.status(200).json({
+      ...user._doc,
+      totalUploads,
+      totalDownloads,
+      videoCount,
+      imageCount,
+      documentCount,
+      lastLogin: user.lastLogin,
+    });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error fetching user" });
   }
 };
+
 
 // Fix updateUser
 const updateUser = async (req, res) => {
