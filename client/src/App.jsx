@@ -26,6 +26,12 @@ function App() {
     dispatch(loadUserFromStorage());
   }, [dispatch]);
 
+   useEffect(() => {
+    fetch(import.meta.env.VITE_API_URL + "/health")
+      .catch(() => {});
+  }, []);
+
+
   return (
     <>
       <Routes>

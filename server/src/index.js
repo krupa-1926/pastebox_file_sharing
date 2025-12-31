@@ -51,6 +51,11 @@ app.get('/f/:shortCode', async (req, res) => {
 
 });
 
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
+
     app.listen(PORT, () => {
       console.log(`✅ Server is running at http://localhost:${PORT}`);
     });

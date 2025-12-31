@@ -7,24 +7,35 @@ import UploadPage from "./FileUpload/UploadPage";
 import FileShow from "./FileShow";
 import Logout from "./Logout";
 import Footer from "../Footer";
+import { useDispatch, useSelector } from "react-redux";
+import { getUser } from "../../redux/slice/auth/authThunk";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("home");
 
-  useEffect(() => {
-    const timeout = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(timeout);
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-white">
-        <h1 className="text-3xl font-bold text-gray-700 animate-pulse">Loading...</h1>
-      </div>
-    );
+  const dispatch = useDispatch();
+const { user } = useSelector((state) => state.auth);
+useEffect(() => {
+  if (user?._id && !user?.fullname) {
+    dispatch(getUser(user._id));
   }
+}, [dispatch, user?._id]);
+
+
+  // useEffect(() => {
+  //   const timeout = setTimeout(() => setLoading(false), 1500);
+  //   return () => clearTimeout(timeout);
+  // }, []);
+
+  // if (loading) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen bg-white">
+  //       <h1 className="text-3xl font-bold text-gray-700 animate-pulse">Loading...</h1>
+  //     </div>
+  //   );
+  // }
 
   return (
     <>

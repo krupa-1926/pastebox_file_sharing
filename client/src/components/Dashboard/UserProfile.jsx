@@ -3,13 +3,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { deleteUser, updateUser } from "../../redux/slice/auth/authThunk";
 
 const UserProfile = () => {
-  const { user } = useSelector((state) => state.auth);
+  // const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const { user, loading } = useSelector((state) => state.auth);
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [newUsername, setNewUsername] = useState(user.username);
 
+  if (loading) return <p>Loading profile...</p>;
   const handleUpdate = () => {
     dispatch(updateUser({ userId: user._id, username: newUsername }));
     setEditModalOpen(false);

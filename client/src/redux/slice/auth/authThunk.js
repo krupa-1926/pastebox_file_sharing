@@ -3,11 +3,31 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import axiosInstance from '../../../config/axiosInstance';
 
+//getUser
+export const getUser = createAsyncThunk('auth/getUser', async (userId, { rejectWithValue }) => {
+  try {
+    console.log(userId);
+    
+    const res = await axiosInstance.get(`/users/user/${userId}`);
+    console.log(res);
+    return res.data;
+    // return await res.json();
+  } catch (err) {
+    return rejectWithValue(err.response.data);
+  }
+});
+
 // REGISTER
-export const registerUser = createAsyncThunk('auth/register', async (formData, { rejectWithValue }) => {
+export const registerUser = createAsyncThunk('auth/register', async (formData, {dispatch , rejectWithValue }) => {
   try {
     const res = await axiosInstance.post('/users/register', formData);
-    return res.data;
+    
+      localStorage.setItem("token", res.data.token);
+
+      // 🔥 IMPORTANT: fetch user immediately
+      await dispatch(getUser(res.data.userId));
+
+      return res.data;
   } catch (err) {
     // return rejectWithValue(err.response.data.message || 'Registration failed');
     return rejectWithValue(
@@ -26,6 +46,7 @@ export const loginUser = createAsyncThunk('auth/login', async (formData, { rejec
     return rejectWithValue(err.response.data.message || 'Login failed');
   }
 });
+
 
 
 // updateUser
@@ -49,19 +70,8 @@ export const deleteUser = createAsyncThunk('auth/deleteUser', async (userId, { r
   }
 });
 
-//getUser
-export const getUser = createAsyncThunk('auth/getUser', async (userId, { rejectWithValue }) => {
-  try {
-    console.log(userId);
-    
-    const res = await axiosInstance.get(`/users/user/${userId}`);
-    console.log(res);
-    return res.data;
-    // return await res.json();
-  } catch (err) {
-    return rejectWithValue(err.response.data);
-  }
-});
+
+
 
 
 

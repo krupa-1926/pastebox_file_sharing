@@ -7,7 +7,7 @@ const authSlice = createSlice({
   initialState: {
     user: stored ? JSON.parse(stored) : null,
     isLoggedIn: !!stored,
-    profile: null,
+    // profile: null,
     loading: false,
     error: null,
   },
@@ -35,7 +35,7 @@ const authSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
-        state.isLoggedIn = true;
+        // state.isLoggedIn = true;
         localStorage.setItem('user', JSON.stringify(action.payload));
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -50,7 +50,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;        
-        state.authUser = action.payload.user;
+        state.user = action.payload.user;
         state.isLoggedIn = true;
         localStorage.setItem('user', JSON.stringify(action.payload.user));
       })
@@ -68,8 +68,8 @@ const authSlice = createSlice({
       .addCase(updateUser.fulfilled,(state,action)=>{
         state.loading=false;
         // state.authUser=action.payload;
-        state.authUser = {
-    ...state.authUser,
+        state.user = {
+    ...state.user,
     ...action.payload
   };
         localStorage.setItem('user',JSON.stringify(action.payload));
@@ -101,9 +101,9 @@ const authSlice = createSlice({
         .addCase(getUser.fulfilled,(state,action)=>{
             state.loading=false;
             console.log(action.payload);
-             state.profile = action.payload; 
+            //  state.profile = action.payload; 
             state.user=action.payload;
-            // localStorage.setItem('user',JSON.stringify(action.payload));
+            localStorage.setItem('user',JSON.stringify(action.payload));
         })
         .addCase(getUser.rejected,(state,action)=>{
             state.loading=false;
