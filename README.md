@@ -173,17 +173,21 @@ pastebox_file_sharing/
 
 ![User Dashboard](./client/src/assets/screenshots/user_dashboard.png)
 
+
 ### Guest Dashboard
 
 ![Guest Dashboard](./client/src/assets/screenshots/dashboard.png)
+
 
 ### File Upload Panel
 
 ![File Uploaded](./client/src/assets/screenshots/upload.png)
 
+
 ### File Share Options
 
 ![File Share](./client/src/assets/screenshots/share.png)
+
 
 ### File Preview Window
 
